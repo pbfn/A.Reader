@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -44,7 +45,7 @@ fun LoginScreen(navController: NavController = NavController(context = LocalCont
             verticalArrangement = Arrangement.Top
         ) {
             ReaderLogo()
-            UserForm(loading = false, isCreateAccount = false){email,password ->
+            UserForm(loading = false, isCreateAccount = false) { email, password ->
                 Log.d("Form", "LoginScreen: $email $password")
             }
         }
@@ -76,21 +77,47 @@ fun UserForm(
         EmailInput(emailState = email, enabled = !loading, onAction = KeyboardActions {
             passwordFocusRequest.requestFocus()
         })
-    }
+        PasswordInput(
+            modifier = Modifier.focusRequester(passwordFocusRequest),
+            passwordState = password,
+            labelID = "Password",
+            enabled = !loading,
+            passwordVisibility = passwordVisibility,
+            onAction = KeyboardActions {
+                if (!valid) return@KeyboardActions
+                onDone(email.value.trim(), password.value.trim())
+            }
+        )
 
-    PasswordInput(
-        modifier = Modifier.focusRequester(passwordFocusRequest),
-        passwordState = password,
-        labelID = "Password",
-        enabled = !loading,
-        passwordVisibility = passwordVisibility,
-        onAction = KeyboardActions {
-            if (!valid) return@KeyboardActions
+        SubmitButton(
+            textId = if (isCreateAccount) "Create Account" else "Login",
+            loading = loading,
+            validInputs = valid
+        ) {
             onDone(email.value.trim(), password.value.trim())
         }
-    )
+    }
 
 
+}
+
+@Composable
+fun SubmitButton(
+    textId: String,
+    loading: Boolean,
+    validInputs: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick, modifier = Modifier
+            .padding(3.dp)
+            .fillMaxWidth(),
+        enabled = !loading && validInputs,
+        shape = CircleShape
+    ) {
+        if (loading) CircularProgressIndicator(modifier = Modifier.size(25.dp))
+        else Text(text = textId, modifier = Modifier.padding(5.dp))
+    }
 }
 
 
