@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "686913837091",
+    "project_id": "jetareader-f822a",
+    "storage_bucket": "jetareader-f822a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686913837091:android:e7aa61b6ae512b059a7996",
+        "android_client_info": {
+          "package_name": "com.pedro_bruno.areader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "686913837091-pb1m2o8bnl7p9156vdbnbct7d4t6j49r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmGyDK4x8PMUODf6fzeoQ7Uj-SmhuY5-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "686913837091-pb1m2o8bnl7p9156vdbnbct7d4t6j49r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
