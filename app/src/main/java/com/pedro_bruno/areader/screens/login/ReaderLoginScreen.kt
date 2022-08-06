@@ -2,6 +2,7 @@ package com.pedro_bruno.areader.screens.login
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,7 +24,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -32,24 +35,58 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.pedro_bruno.areader.R
 import com.pedro_bruno.areader.components.EmailInput
 import com.pedro_bruno.areader.components.PasswordInput
 import com.pedro_bruno.areader.components.ReaderLogo
 
-
+@Preview
 @Composable
 fun LoginScreen(navController: NavController = NavController(context = LocalContext.current)) {
+
+    val showLoginForm = rememberSaveable() { mutableStateOf(true) }
+
+
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
             ReaderLogo()
-            UserForm(loading = false, isCreateAccount = false) { email, password ->
-                Log.d("Form", "LoginScreen: $email $password")
+            if (showLoginForm.value) {
+                UserForm(loading = false, isCreateAccount = false) { email, password ->
+                    Log.d("Form", "LoginScreen: $email $password")
+                    //TODO login fb account
+                }
+            } else {
+                UserForm(loading = false, isCreateAccount = true) { email, password ->
+                    Log.d("Form", "CreateAccountScreen: $email $password")
+                    //TODO Create fb account
+                }
+            }
+
+            Spacer(modifier = Modifier.width(15.dp))
+
+            Row(
+                modifier = Modifier.padding(15.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val text = if (showLoginForm.value) "Sign up" else "Login"
+                Text(text = "New User?")
+                Text(text = text,
+                    modifier = Modifier
+                        .clickable {
+                            showLoginForm.value = !showLoginForm.value
+                        }
+                        .padding(start = 5.dp),
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colors.secondaryVariant)
             }
         }
     }
+
+
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -73,7 +110,13 @@ fun UserForm(
         .background(MaterialTheme.colors.background)
         .verticalScroll(rememberScrollState())
 
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier.padding(), horizontalAlignment = Alignment.CenterHorizontally) {
+
+        if (isCreateAccount) Text(
+            text = stringResource(id = R.string.create_acct),
+            modifier = Modifier.padding(4.dp)
+        ) else Text(text = "")
+
         EmailInput(emailState = email, enabled = !loading, onAction = KeyboardActions {
             passwordFocusRequest.requestFocus()
         })
@@ -86,6 +129,7 @@ fun UserForm(
             onAction = KeyboardActions {
                 if (!valid) return@KeyboardActions
                 onDone(email.value.trim(), password.value.trim())
+                keyboardController?.hide()
             }
         )
 
@@ -95,6 +139,7 @@ fun UserForm(
             validInputs = valid
         ) {
             onDone(email.value.trim(), password.value.trim())
+            keyboardController?.hide()
         }
     }
 
