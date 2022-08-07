@@ -67,7 +67,9 @@ fun LoginScreen(
             } else {
                 UserForm(loading = false, isCreateAccount = true) { email, password ->
                     Log.d("Form", "CreateAccountScreen: $email $password")
-                    //TODO Create fb account
+                    viewModel.createUserWithEmailAndPassword(email = email, password = password) {
+                        navController.navigate(ReaderScreens.ReaderHomeScreen.name)
+                    }
                 }
             }
 
