@@ -39,10 +39,14 @@ import com.pedro_bruno.areader.R
 import com.pedro_bruno.areader.components.EmailInput
 import com.pedro_bruno.areader.components.PasswordInput
 import com.pedro_bruno.areader.components.ReaderLogo
+import com.pedro_bruno.areader.navigation.ReaderScreens
 
 @Preview
 @Composable
-fun LoginScreen(navController: NavController = NavController(context = LocalContext.current)) {
+fun LoginScreen(
+    navController: NavController = NavController(context = LocalContext.current),
+    viewModel: LoginScreenViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+) {
 
     val showLoginForm = rememberSaveable() { mutableStateOf(true) }
 
@@ -56,7 +60,9 @@ fun LoginScreen(navController: NavController = NavController(context = LocalCont
             if (showLoginForm.value) {
                 UserForm(loading = false, isCreateAccount = false) { email, password ->
                     Log.d("Form", "LoginScreen: $email $password")
-                    //TODO login fb account
+                    viewModel.signInWithEmailAndPassword(email = email, password = password) {
+                        navController.navigate(ReaderScreens.ReaderHomeScreen.name)
+                    }
                 }
             } else {
                 UserForm(loading = false, isCreateAccount = true) { email, password ->
