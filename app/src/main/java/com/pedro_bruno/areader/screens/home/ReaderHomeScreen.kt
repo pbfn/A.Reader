@@ -29,7 +29,7 @@ fun Home(navController: NavController = NavController(context = LocalContext.cur
         ReaderAppBar(title = "A.Reader", navController = navController)
     }, floatingActionButton = {
         FABContent {
-
+            navController.navigate(ReaderScreens.SearchScreen.name)
         }
     }) {
         //content

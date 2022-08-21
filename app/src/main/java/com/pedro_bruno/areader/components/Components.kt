@@ -12,12 +12,18 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -154,8 +160,10 @@ fun TitleSection(modifier: Modifier = Modifier, label: String) {
 @Composable
 fun ReaderAppBar(
     title: String,
+    icon: ImageVector? = null,
     showProfile: Boolean = true,
-    navController: NavController
+    navController: NavController,
+    onBackArrowClicked: () -> Unit = {}
 ) {
     TopAppBar(
         title = {
@@ -169,12 +177,18 @@ fun ReaderAppBar(
                         tint = Color.Green.copy(alpha = 0.4f)
                     )
                 }
+                if (icon != null) {
+                    Icon(imageVector = icon, contentDescription = "arrow back",
+                        tint = Color.Red.copy(alpha = 0.7f),
+                        modifier = Modifier.clickable { onBackArrowClicked.invoke() })
+                }
+                Spacer(modifier = Modifier.width(40.dp))
                 Text(
                     text = title,
                     color = Color.Red.copy(alpha = 0.7f),
                     style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 )
-                Spacer(modifier = Modifier.width(150.dp))
+
             }
         },
         actions = {
@@ -183,7 +197,10 @@ fun ReaderAppBar(
                     navController.navigate(ReaderScreens.LoginScreen.name)
                 }
             }) {
-                Icon(imageVector = Icons.Filled.Logout, contentDescription = "Logout")
+                if(showProfile) Row() {
+                    Icon(imageVector = Icons.Filled.Logout, contentDescription = "Logout")
+                }else Box{}
+
             }
         },
         backgroundColor = Color.Transparent,
@@ -260,7 +277,8 @@ fun ListCard(
     book: MBook = MBook("Test", "Running", "Me and you", "Hello World"),
     onPressDetails: (String) -> Unit = {}
 ) {
-    val apiImage = "http://books.google.com/books/content?id=6DQACwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    val apiImage =
+        "http://books.google.com/books/content?id=6DQACwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
 
     val context = LocalContext.current
     val resources = context.resources
@@ -327,6 +345,37 @@ fun ListCard(
         ) {
             RoundedButton(label = "Reading", radius = 70)
         }
+    }
+
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Preview
+@Composable
+fun SearchForm(
+    modifier: Modifier = Modifier,
+    loading: Boolean = false,
+    hint: String = "Search",
+    onSearch: (String) -> Unit = {}
+) {
+    Column() {
+        val searchQueryState = rememberSaveable { mutableStateOf("") }
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val valid = remember(searchQueryState.value) {
+            searchQueryState.value.trim().isNotEmpty()
+        }
+
+        InputFiled(
+            valueState = searchQueryState,
+            labelID = hint,
+            enabled = true,
+            onAction = KeyboardActions {
+                if (!valid) return@KeyboardActions
+                onSearch(searchQueryState.value.trim())
+                searchQueryState.value = ""
+                keyboardController?.hide()
+            }
+        )
     }
 
 }
