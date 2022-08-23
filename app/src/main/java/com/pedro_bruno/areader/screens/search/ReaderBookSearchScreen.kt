@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -115,9 +116,23 @@ fun BookRow(
                 Text(
                     text = "Author : ${book.volumeInfo.authors}",
                     overflow = TextOverflow.Clip,
-                    style = MaterialTheme.typography.caption
+                    style = MaterialTheme.typography.caption,
+                    fontStyle = FontStyle.Italic
                 )
 
+                Text(
+                    text = "Data : ${book.volumeInfo.publishedDate}",
+                    overflow = TextOverflow.Clip,
+                    style = MaterialTheme.typography.caption,
+                    fontStyle = FontStyle.Italic
+                )
+
+                Text(
+                    text = "${book.volumeInfo.categories}",
+                    overflow = TextOverflow.Clip,
+                    style = MaterialTheme.typography.caption,
+                    fontStyle = FontStyle.Italic
+                )
             }
         }
     }
