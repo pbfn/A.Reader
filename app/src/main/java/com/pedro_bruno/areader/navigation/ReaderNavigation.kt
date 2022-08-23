@@ -1,6 +1,7 @@
 package com.pedro_bruno.areader.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -8,6 +9,7 @@ import com.pedro_bruno.areader.screens.ReaderSplashScreen
 import com.pedro_bruno.areader.screens.details.BookDetailsScreen
 import com.pedro_bruno.areader.screens.home.Home
 import com.pedro_bruno.areader.screens.login.LoginScreen
+import com.pedro_bruno.areader.screens.search.BookSearchViewModel
 import com.pedro_bruno.areader.screens.search.SearchScreen
 import com.pedro_bruno.areader.screens.stats.ReaderStatsScreen
 import com.pedro_bruno.areader.screens.update.BookUpdateScreen
@@ -37,7 +39,8 @@ fun ReaderNavigation() {
         }
 
         composable(ReaderScreens.SearchScreen.name) {
-            SearchScreen(navController = navController)
+            val viewModel = hiltViewModel<BookSearchViewModel>()
+            SearchScreen(navController = navController, viewModel = viewModel)
         }
 
         composable(ReaderScreens.ReaderStatsScreen.name) {

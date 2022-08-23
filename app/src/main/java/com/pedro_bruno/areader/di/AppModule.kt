@@ -1,6 +1,7 @@
 package com.pedro_bruno.areader.di
 
 import com.pedro_bruno.areader.network.BooksApi
+import com.pedro_bruno.areader.repository.BookRepository
 import com.pedro_bruno.areader.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -13,6 +14,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Singleton
+    @Provides
+    fun provideBookRepository(api: BooksApi) = BookRepository(api)
 
     @Singleton
     @Provides

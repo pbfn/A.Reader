@@ -41,6 +41,7 @@ import coil.compose.rememberImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import com.pedro_bruno.areader.model.MBook
 import com.pedro_bruno.areader.navigation.ReaderScreens
+import com.pedro_bruno.areader.screens.search.BookSearchViewModel
 
 @Composable
 fun ReaderLogo(modifier: Modifier = Modifier) {
@@ -197,9 +198,9 @@ fun ReaderAppBar(
                     navController.navigate(ReaderScreens.LoginScreen.name)
                 }
             }) {
-                if(showProfile) Row() {
+                if (showProfile) Row() {
                     Icon(imageVector = Icons.Filled.Logout, contentDescription = "Logout")
-                }else Box{}
+                } else Box {}
 
             }
         },
@@ -350,11 +351,11 @@ fun ListCard(
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-@Preview
 @Composable
 fun SearchForm(
     modifier: Modifier = Modifier,
     loading: Boolean = false,
+    viewModel: BookSearchViewModel,
     hint: String = "Search",
     onSearch: (String) -> Unit = {}
 ) {

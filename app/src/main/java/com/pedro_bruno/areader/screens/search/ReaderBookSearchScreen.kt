@@ -1,5 +1,6 @@
 package com.pedro_bruno.areader.screens.search
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.pedro_bruno.areader.components.ReaderAppBar
@@ -23,9 +25,12 @@ import com.pedro_bruno.areader.components.SearchForm
 import com.pedro_bruno.areader.model.MBook
 import com.pedro_bruno.areader.navigation.ReaderScreens
 
-@Preview
+
 @Composable
-fun SearchScreen(navController: NavController = NavController(LocalContext.current)) {
+fun SearchScreen(
+    navController: NavController,
+    viewModel: BookSearchViewModel = hiltViewModel()
+) {
     Scaffold(topBar = {
         ReaderAppBar(
             title = "Search Books",
@@ -42,18 +47,28 @@ fun SearchScreen(navController: NavController = NavController(LocalContext.curre
                 SearchForm(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
+                        .padding(16.dp),
+                    viewModel = viewModel
+                ) { query ->
+                    viewModel.searchBooks(query)
                 }
                 Spacer(modifier = Modifier.height(13.dp))
-                BookList(navController)
+                BookList(navController,viewModel)
             }
         }
     }
 }
 
 @Composable
-fun BookList(navController: NavController) {
+fun BookList(navController: NavController,viewModel: BookSearchViewModel) {
+
+    if(viewModel.listOfBooks.value.loading == true){
+        Log.d("BOO", "BookList: loading ")
+        CircularProgressIndicator()
+    }else{
+        Log.d("BOO", "BookList: not loading ")
+    }
+
 
     val listOfBooks = listOf(
         MBook("Test 1", "Running 1", "Me and you", "Hello World"),
