@@ -1,7 +1,9 @@
 package com.pedro_bruno.areader.di
 
+import com.google.firebase.firestore.FirebaseFirestore
 import com.pedro_bruno.areader.network.BooksApi
 import com.pedro_bruno.areader.repository.BookRepository
+import com.pedro_bruno.areader.repository.FireRepository
 import com.pedro_bruno.areader.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -28,5 +30,12 @@ object AppModule {
             .build()
             .create(BooksApi::class.java)
     }
+
+    @Singleton
+    @Provides
+    fun provideFireBookRepository() = FireRepository(
+        queryBook = FirebaseFirestore.getInstance()
+            .collection("books")
+    )
 
 }

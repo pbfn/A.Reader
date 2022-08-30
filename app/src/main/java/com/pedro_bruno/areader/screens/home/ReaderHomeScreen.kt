@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.pedro_bruno.areader.components.*
@@ -24,7 +25,10 @@ import com.pedro_bruno.areader.navigation.ReaderScreens
 
 @Preview
 @Composable
-fun Home(navController: NavController = NavController(context = LocalContext.current)) {
+fun Home(
+    navController: NavController = NavController(context = LocalContext.current),
+    viewModel: HomeScreenViewModel = hiltViewModel()
+) {
     Scaffold(topBar = {
         ReaderAppBar(title = "A.Reader", navController = navController)
     }, floatingActionButton = {
@@ -35,13 +39,13 @@ fun Home(navController: NavController = NavController(context = LocalContext.cur
         //content
         Surface(modifier = Modifier.fillMaxSize()) {
             //home content
-            HomeContent(navController)
+            HomeContent(navController, viewModel)
         }
     }
 }
 
 @Composable
-fun HomeContent(navController: NavController) {
+fun HomeContent(navController: NavController, viewModel: HomeScreenViewModel) {
 
     val email = FirebaseAuth.getInstance().currentUser?.email
     val currentUserName = if (!email.isNullOrEmpty())
@@ -49,12 +53,21 @@ fun HomeContent(navController: NavController) {
     else
         "N/A"
 
-    val listOfBooks = listOf(
-        MBook("Test 1", "Running 1", "Me and you", "Hello World"),
-        MBook("Test 2", "Running 2", "Me and you", "Hello World"),
-        MBook("Test 3", "Running 3", "Me and you", "Hello World"),
-        MBook("Test 4", "Running 4", "Me and you", "Hello World"),
-    )
+    var listOfBooks = emptyList<MBook>()
+    val currentUser = FirebaseAuth.getInstance().currentUser
+
+    if (!viewModel.data.value.data.isNullOrEmpty()) {
+        listOfBooks = viewModel.data.value.data!!.toList().filter { mBook ->
+            mBook.userId == currentUser?.uid.toString()
+        }
+    }
+
+//    val listOfBooks = listOf(
+//        MBook("Test 1", "Running 1", "Me and you", "Hello World"),
+//        MBook("Test 2", "Running 2", "Me and you", "Hello World"),
+//        MBook("Test 3", "Running 3", "Me and you", "Hello World"),
+//        MBook("Test 4", "Running 4", "Me and you", "Hello World"),
+//    )
 
     Column(
         modifier = Modifier.padding(2.dp),
@@ -87,7 +100,7 @@ fun HomeContent(navController: NavController) {
             }
         }
 
-        ReadingRightNowArea(books = listOf(), navController = navController)
+        ReadingRightNowArea(books = listOfBooks, navController = navController)
 
         TitleSection(label = "Reading List")
 
@@ -99,7 +112,7 @@ fun HomeContent(navController: NavController) {
 @Composable
 fun BookListArea(listOfBooks: List<MBook>, navController: NavController) {
     HorizontalScrollableComponent(listOfBooks) {
-        //TODO on card clicked go to details
+        navController.navigate(ReaderScreens.UpdateScreen.name + "/$it")
     }
 }
 
@@ -115,7 +128,7 @@ fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (Stri
     ) {
         for (book in listOfBooks) {
             ListCard(book) {
-                onCardPressed(it)
+                onCardPressed(book.googleBookId.toString())
             }
         }
     }
@@ -124,5 +137,7 @@ fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (Stri
 
 @Composable
 fun ReadingRightNowArea(books: List<MBook>, navController: NavController) {
-    ListCard()
+    HorizontalScrollableComponent(books) {
+        //TODO on card clicked go to details
+    }
 }

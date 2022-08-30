@@ -1,5 +1,12 @@
 package com.pedro_bruno.areader.components
 
+import android.content.Context
+import android.view.MotionEvent
+import android.widget.RatingBar
+import android.widget.Toast
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,10 +17,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -22,8 +26,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.google.firebase.auth.FirebaseAuth
+import com.pedro_bruno.areader.R
 import com.pedro_bruno.areader.model.MBook
 import com.pedro_bruno.areader.navigation.ReaderScreens
 import com.pedro_bruno.areader.screens.search.BookSearchViewModel
@@ -272,14 +279,12 @@ fun BookRating(score: Double = 4.5) {
     }
 }
 
-@Preview
+
 @Composable
 fun ListCard(
-    book: MBook = MBook("Test", "Running", "Me and you", "Hello World"),
+    book: MBook,
     onPressDetails: (String) -> Unit = {}
 ) {
-    val apiImage =
-        "http://books.google.com/books/content?id=6DQACwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
 
     val context = LocalContext.current
     val resources = context.resources
@@ -305,7 +310,7 @@ fun ListCard(
             Row(horizontalArrangement = Arrangement.Center) {
 
                 Image(
-                    painter = rememberImagePainter(data = apiImage),
+                    painter = rememberImagePainter(data = book.photoUrl.toString()),
                     contentDescription = "Image",
                     modifier = Modifier
                         .width(100.dp)
@@ -329,14 +334,14 @@ fun ListCard(
 
             }
             Text(
-                text = "Book title", modifier = Modifier.padding(4.dp),
+                text = book.title.toString(), modifier = Modifier.padding(4.dp),
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
             Text(
-                text = "Authors: All...", modifier = Modifier.padding(4.dp),
+                text = book.authors.toString(), modifier = Modifier.padding(4.dp),
                 style = MaterialTheme.typography.caption
             )
         }
@@ -379,4 +384,81 @@ fun SearchForm(
         )
     }
 
+}
+
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun RatingBar(
+    modifier: Modifier = Modifier,
+    rating: Int,
+    onPressRating: (Int) -> Unit
+) {
+    var ratingState by remember { mutableStateOf(rating) }
+    var selected by remember { mutableStateOf(false) }
+    val size by animateDpAsState(
+        targetValue = if (selected) 42.dp else 34.dp,
+        spring(Spring.DampingRatioMediumBouncy)
+    )
+
+    Row(
+        modifier = Modifier.width(280.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        for (i in 1..5) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_baseline_star_24),
+                contentDescription = "star",
+                modifier = modifier
+                    .width(size)
+                    .height(size)
+                    .pointerInteropFilter {
+                        when (it.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                                selected = true
+                                onPressRating(i)
+                                ratingState = i
+                            }
+                            MotionEvent.ACTION_UP -> {
+                                selected = false
+                            }
+                        }
+                        true
+                    }, tint = if (i <= ratingState) Color(0xFFFDD700) else Color(0xFFA2ADB1)
+            )
+        }
+    }
+}
+
+fun showToast(context: Context, msg: String) {
+    Toast.makeText(context, msg, Toast.LENGTH_LONG)
+        .show()
+}
+
+@Composable
+fun ShowAlertDialog(
+    title: String,
+    message: String,
+    openDialog: MutableState<Boolean>,
+    onYesPressed: () -> Unit
+) {
+    if (openDialog.value) {
+        AlertDialog(onDismissRequest = {openDialog.value = false },
+            title = { Text(text = title) },
+            text = { Text(text = message) },
+            buttons = {
+                Row(modifier = Modifier.padding(8.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TextButton(onClick = { onYesPressed.invoke()}) {
+                        Text(text = "Yes")
+                    }
+
+                    TextButton(onClick = { openDialog.value = false}) {
+                        Text(text = "No")
+                    }
+                }
+            })
+    }
 }
